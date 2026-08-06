@@ -1,0 +1,6 @@
+{
+  "name": "Results Portal - Mfumo wa Matokeo",
+  "description": "Mfumo wa Usimamizi na Uchambuzi wa Matokeo ya Mtihani wa Results Portal",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

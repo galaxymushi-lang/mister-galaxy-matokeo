@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+@layer utilities {
+  /* ============================================
+     PRINT STYLES — Premium PDF Output
+     ============================================ */
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #1a1a2e !important;
+      font-size: 9pt;
+      line-height: 1.3;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Hide everything except root */
+    body > *:not(#root) {
+      display: none !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 8mm 10mm;
+    }
+
+    /* ============================================
+       MODAL → FULL PAGE IN PRINT
+       ============================================ */
+    /* Remove all height/overflow constraints from modal */
+    .fixed.inset-0 {
+      position: static !important;
+      background: none !important;
+      backdrop-filter: none !important;
+      display: block !important;
+    }
+
+    .fixed.inset-0 > div {
+      max-height: none !important;
+      overflow: visible !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    /* Print area fills the page */
+    .print-area {
+      padding: 0 !important;
+      overflow: visible !important;
+      max-height: none !important;
+      flex: none !important;
+    }
+
+    /* ============================================
+       TABLE PAGINATION — KEY FIX
+       ============================================ */
+    /* Allow tables to break across pages */
+    .print-area table {
+      page-break-inside: auto;
+      border-collapse: collapse;
+    }
+
+    /* Repeat header on every page */
+    .print-area thead {
+      display: table-header-group;
+    }
+
+    /* Allow rows to break across pages — THIS IS THE FIX */
+    .print-area tbody tr {
+      page-break-inside: auto;
+      page-break-after: auto;
+    }
+
+    /* Keep at least 2 rows together when possible */
+    .print-area tbody tr:nth-child(n+2) {
+      page-break-before: auto;
+    }
+
+    /* Table cells should never break */
+    .print-area td,
+    .print-area th {
+      page-break-inside: avoid;
+      page-break-after: avoid;
+    }
+
+    /* ============================================
+       CLEAN TABLE BORDERS
+       ============================================ */
+    .print-area table {
+      border: 1px solid #d1d5db !important;
+    }
+
+    .print-area th {
+      border: 1px solid #d1d5db !important;
+      padding: 4px 6px !important;
+    }
+
+    .print-area td {
+      border: 1px solid #e5e7eb !important;
+      padding: 3px 6px !important;
+    }
+
+    /* ============================================
+       HEADER / FOOTER FOR EACH PAGE
+       ============================================ */
+    .print-area > div:first-child {
+      page-break-after: avoid;
+    }
+
+    /* Subject dividers break cleanly */
+    .print-area .subject-section {
+      page-break-before: always;
+    }
+
+    .print-area .subject-section:first-child {
+      page-break-before: avoid;
+    }
+
+    /* ============================================
+       VISUAL CLEANUP FOR PRINT
+       ============================================ */
+    /* Remove gradients — use flat colors */
+    .print-area .bg-gradient-to-br {
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .print-area .bg-gradient-to-r {
+      background: #1e293b !important;
+    }
+
+    /* Stat cards print clean */
+    .print-area .from-indigo-50 { background: #eef2ff !important; }
+    .print-area .from-cyan-50 { background: #ecfeff !important; }
+    .print-area .from-emerald-50 { background: #ecfdf5 !important; }
+    .print-area .from-amber-50 { background: #fffbeb !important; }
+    .print-area .to-indigo-100,
+    .print-area .to-cyan-100,
+    .print-area .to-emerald-100,
+    .print-area .to-amber-100 { background: transparent !important; }
+
+    /* Rank circles print as bordered text */
+    .print-area .rounded-full.bg-indigo-100 {
+      background: transparent !important;
+      border: 1.5px solid #4f46e5 !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 1px 5px !important;
+      border-radius: 4px !important;
+    }
+
+    /* Gender badges */
+    .print-area .rounded-full.bg-blue-100 {
+      background: transparent !important;
+      border: 1px solid #2563eb !important;
+      color: #1d4ed8 !important;
+    }
+    .print-area .rounded-full.bg-pink-100 {
+      background: transparent !important;
+      border: 1px solid #db2777 !important;
+      color: #be185d !important;
+    }
+
+    /* Grade badges */
+    .print-area .rounded-md {
+      border: 1px solid currentColor !important;
+    }
+
+    /* Hide progress bars */
+    .print-area .w-16.h-2,
+    .print-area [class*="rounded-full"][class*="overflow-hidden"] {
+      display: none !important;
+    }
+
+    /* Footer */
+    .print-area .text-xs { font-size: 8pt !important; }
+
+    /* Subject headers */
+    .print-area .from-indigo-50.to-cyan-50 {
+      background: #f1f5f9 !important;
+      border: 1px solid #e2e8f0 !important;
+      margin-bottom: 6px !important;
+    }
+
+    /* Remove hover effects */
+    .print-area .hover\:bg-indigo-50:hover {
+      background: transparent !important;
+    }
+
+    /* Page break helper */
+    .page-break { page-break-after: always; }
+  }
+}
+
+/* ============================================
+   SCREEN STYLES
+   ============================================ */
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
