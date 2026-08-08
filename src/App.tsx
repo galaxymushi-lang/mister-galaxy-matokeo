@@ -298,6 +298,7 @@ export default function App() {
             <EntryTab
               students={students}
               subjects={subjects}
+              settings={settings}
               onUpdateMark={handleUpdateMark}
               onUpdateStudentName={handleUpdateStudentName}
               onUpdateStudentGender={handleUpdateStudentGender}

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SchoolSettings } from '../types';
-import { School, Lock, User, LogIn } from 'lucide-react';
+import { School, Lock, User, LogIn, Download } from 'lucide-react';
 
 interface LoginModalProps {
   settings: SchoolSettings;
@@ -12,6 +12,23 @@ export function LoginModal({ settings, onLoginSuccess }: LoginModalProps) {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setDeferredPrompt(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +111,16 @@ export function LoginModal({ settings, onLoginSuccess }: LoginModalProps) {
           <p className="text-center text-xs text-slate-400 mt-6">
             Mfumo wa Usimamizi wa Matokeo ya Mtihani
           </p>
+
+          {deferredPrompt && (
+            <button
+              onClick={handleInstall}
+              className="mt-4 w-full py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Weka App kwenye Simu
+            </button>
+          )}
         </div>
       </div>
     </div>

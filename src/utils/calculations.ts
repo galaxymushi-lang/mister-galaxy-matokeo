@@ -127,6 +127,31 @@ export function calculateSubjectStats(
 }
 
 // ========================================
+// Per-subject ranking (for EntryTab live display)
+// ========================================
+
+export function calculateSubjectRanks(
+  students: Student[],
+  subjectId: string
+): Map<string, number> {
+  const ranks = new Map<string, number>();
+  const withMark = students
+    .map((st) => ({ id: st.id, mark: typeof st.marks[subjectId] === 'number' ? (st.marks[subjectId] as number) : null }))
+    .filter((s) => s.mark !== null)
+    .sort((a, b) => (b.mark ?? 0) - (a.mark ?? 0));
+
+  let i = 0;
+  while (i < withMark.length) {
+    let j = i;
+    while (j < withMark.length && withMark[j].mark === withMark[i].mark) j++;
+    const avgRank = (i + 1 + j) / 2;
+    for (let k = i; k < j; k++) ranks.set(withMark[k].id, avgRank);
+    i = j;
+  }
+  return ranks;
+}
+
+// ========================================
 // Excel export (SpreadsheetML / HTML table .xls)
 // ========================================
 
