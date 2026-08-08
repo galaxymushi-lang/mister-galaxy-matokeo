@@ -247,3 +247,72 @@ export function downloadFile(filename: string, content: string, mimeType: string
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+// ========================================
+// Excel Import (HTML table .xls parser)
+// ========================================
+
+export function parseImportedExcel(html: string, subjects: Subject[]): { students: { name: string; gender: 'ME' | 'KE' | ''; marks: Record<string, number | ''> }[] } {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const rows = doc.querySelectorAll('tr');
+  const result: { name: string; gender: 'ME' | 'KE' | ''; marks: Record<string, number | ''> }[] = [];
+
+  // Find header row to get subject column indices
+  let headerCells: string[] = [];
+  let dataStartRow = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td, th');
+    const texts = Array.from(cells).map((c) => c.textContent?.trim() || '');
+    if (texts.some((t) => t.toUpperCase() === 'JINA' || t.toUpperCase().includes('NAME') || t.toUpperCase().includes('JINA LA'))) {
+      headerCells = texts;
+      dataStartRow = i + 1;
+      break;
+    }
+  }
+
+  if (headerCells.length === 0) return { students: [] };
+
+  // Map subject names to columns
+  const subjectMap = new Map<string, { colIdx: number; subjectId: string }>();
+  headerCells.forEach((h, idx) => {
+    const normalized = h.toUpperCase();
+    for (const sub of subjects) {
+      if (normalized.includes(sub.name.toUpperCase()) || sub.name.toUpperCase().includes(normalized)) {
+        subjectMap.set(sub.name, { colIdx: idx, subjectId: sub.id });
+      }
+    }
+  });
+
+  // Find name and gender columns
+  const nameCol = headerCells.findIndex((h) => h.toUpperCase().includes('JINA') || h.toUpperCase().includes('NAME'));
+  const genderCol = headerCells.findIndex((h) => h.toUpperCase().includes('JINS') || h.toUpperCase().includes('GENDER') || h.toUpperCase() === 'SEX');
+
+  // Parse data rows
+  for (let i = dataStartRow; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td');
+    if (cells.length === 0) continue;
+    const texts = Array.from(cells).map((c) => c.textContent?.trim() || '');
+
+    const name = nameCol >= 0 ? texts[nameCol] : texts[0];
+    if (!name) continue;
+
+    let gender: 'ME' | 'KE' | '' = '';
+    if (genderCol >= 0) {
+      const g = texts[genderCol].toUpperCase();
+      if (g === 'ME' || g === 'M' || g === 'MWA' || g.includes('MWA')) gender = 'ME';
+      else if (g === 'KE' || g === 'F' || g === 'MWANA' || g.includes('MWANA')) gender = 'KE';
+    }
+
+    const marks: Record<string, number | ''> = {};
+    for (const [, { colIdx, subjectId }] of subjectMap) {
+      const val = parseInt(texts[colIdx], 10);
+      marks[subjectId] = !isNaN(val) && val >= 0 && val <= 100 ? val : '';
+    }
+
+    result.push({ name, gender, marks });
+  }
+
+  return { students: result };
+}

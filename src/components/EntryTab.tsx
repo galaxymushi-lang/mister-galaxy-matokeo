@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Student, Subject, SchoolSettings } from '../types';
 import { calculateSubjectRanks, getGrade, getGradeColor } from '../utils/calculations';
-import { Plus, Trash2, Edit2, Save, X, User } from 'lucide-react';
+import { Plus, Trash2, Edit2, Save, X, User, Search, Upload } from 'lucide-react';
 
 interface EntryTabProps {
   students: Student[];
@@ -12,6 +12,7 @@ interface EntryTabProps {
   onUpdateStudentGender: (studentId: string, gender: 'ME' | 'KE' | '') => void;
   onAddStudent: (name: string, gender?: 'ME' | 'KE' | '') => void;
   onRemoveStudent: (studentId: string) => void;
+  onImportExcel: (file: File) => void;
 }
 
 export function EntryTab({
@@ -23,12 +24,15 @@ export function EntryTab({
   onUpdateStudentGender,
   onAddStudent,
   onRemoveStudent,
+  onImportExcel,
 }: EntryTabProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newName, setNewName] = useState('');
   const [newGender, setNewGender] = useState<'ME' | 'KE' | ''>('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   // Calculate per-subject ranks
   const subjectRanks = useMemo(() => {
@@ -38,6 +42,13 @@ export function EntryTab({
     }
     return map;
   }, [students, subjects]);
+
+  // Filter students by search query
+  const filteredStudents = useMemo(() => {
+    if (!searchQuery.trim()) return students;
+    const q = searchQuery.toLowerCase();
+    return students.filter((st) => st.name.toLowerCase().includes(q));
+  }, [students, searchQuery]);
 
   const handleMarkChange = (studentId: string, subjectId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -144,13 +155,40 @@ export function EntryTab({
               <User className="w-5 h-5 text-indigo-500" />
               <h3 className="font-bold text-slate-900">Orodha ya Wanafunzi na Matokeo</h3>
             </div>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Ongeza
-            </button>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Tafuta mwanafunzi..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-48"
+              />
+              <input
+                type="file"
+                ref={importInputRef}
+                accept=".xls,.html,.htm"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onImportExcel(file);
+                  e.target.value = '';
+                }}
+                className="hidden"
+              />
+              <button
+                onClick={() => importInputRef.current?.click()}
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                Import
+              </button>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Ongeza
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -188,7 +226,7 @@ export function EntryTab({
                 </tr>
               </thead>
               <tbody>
-                {students.map((st, i) => {
+                {filteredStudents.map((st, i) => {
                   const sum = subjects.reduce((acc, sub) => {
                     const v = st.marks[sub.id];
                     return acc + (typeof v === 'number' && !isNaN(v) ? v : 0);
@@ -291,13 +329,56 @@ export function EntryTab({
                         {count > 0 ? avg.toFixed(1) : '-'}
                       </td>
                       <td className="px-3 py-2 text-center">
-                        <button
-                          onClick={() => onRemoveStudent(st.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
-                          title="Futa mwanafunzi"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => {
+                              const rank = subjectRanks;
+                              const grade = getGrade(avg, settings.gradeBoundaries);
+                              const printContent = `
+                                <html><head><title>Ripoti - ${st.name}</title>
+                                <style>
+                                  body { font-family: system-ui; padding: 20px; font-size: 12px; }
+                                  h1 { font-size: 18px; margin: 0 0 4px; }
+                                  h2 { font-size: 14px; color: #666; margin: 0 0 12px; }
+                                  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+                                  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; }
+                                  th { background: #f1f5f9; font-weight: 600; }
+                                  .header { border-bottom: 2px solid #1e293b; padding-bottom: 8px; margin-bottom: 12px; }
+                                  .grade { font-size: 16px; font-weight: bold; }
+                                </style></head><body>
+                                <div class="header">
+                                  <h1>${settings.schoolName}</h1>
+                                  <h2>${settings.examName} - ${settings.className} ${settings.streamName}</h2>
+                                  <h2>${settings.termName} ${settings.examYear}</h2>
+                                </div>
+                                <p><strong>Jina:</strong> ${st.name} &nbsp;&nbsp; <strong>Jinsia:</strong> ${st.gender || '-'} &nbsp;&nbsp; <strong>Daraja:</strong> <span class="grade">${grade}</span> &nbsp;&nbsp; <strong>Wastani:</strong> ${avg.toFixed(1)}</p>
+                                <table><thead><tr><th>Somo</th><th>Alama</th><th>Daraja</th><th>Nafasi</th><th>Matokeo</th></tr></thead><tbody>
+                                ${subjects.map((sub) => {
+                                  const mark = typeof st.marks[sub.id] === 'number' ? (st.marks[sub.id] as number) : null;
+                                  const subGrade = mark !== null ? getGrade(mark, settings.gradeBoundaries) : '-';
+                                  const subRank = subjectRanks.get(sub.id)?.get(st.id) ?? '-';
+                                  const pass = mark !== null && mark >= sub.passMark;
+                                  return `<tr><td>${sub.name}</td><td>${mark ?? '-'}</td><td>${subGrade}</td><td>${subRank}</td><td>${mark !== null ? (pass ? 'PASS' : 'FAIL') : '-'}</td></tr>`;
+                                }).join('')}
+                                </tbody></table>
+                                <p style="margin-top:16px;font-size:10px;color:#999;">Imetolewa na Mister Galaxy Matokeo</p>
+                                </body></html>`;
+                              const w = window.open('', '_blank');
+                              if (w) { w.document.write(printContent); w.document.close(); w.print(); }
+                            }}
+                            className="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 p-1.5 rounded-lg transition-colors"
+                            title="Chapa ripoti ya mwanafunzi"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                          </button>
+                          <button
+                            onClick={() => onRemoveStudent(st.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                            title="Futa mwanafunzi"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

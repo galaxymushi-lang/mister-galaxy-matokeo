@@ -9,6 +9,8 @@ import {
   AlertTriangle,
   Award,
   Medal,
+  ArrowDown,
+  UserCheck,
 } from 'lucide-react';
 
 interface DashboardTabProps {
@@ -21,6 +23,23 @@ interface DashboardTabProps {
 
 export function DashboardTab({ students, subjects, subjectStatsList, overallAvg, overallPassRate }: DashboardTabProps) {
   const topStudents = students.slice(0, 5);
+  const bottomStudents = [...students].reverse().slice(0, 5);
+
+  const genderStats = (() => {
+    const boys = students.filter((st) => st.gender === 'ME');
+    const girls = students.filter((st) => st.gender === 'KE');
+    const avg = (list: RankedStudent[]) => list.length > 0 ? list.reduce((s, st) => s + st.average, 0) / list.length : 0;
+    const passRate = (list: RankedStudent[]) => list.length > 0 ? (list.filter((st) => st.grade !== 'E').length / list.length) * 100 : 0;
+    return {
+      boysCount: boys.length,
+      girlsCount: girls.length,
+      boysAvg: avg(boys),
+      girlsAvg: avg(girls),
+      boysPassRate: passRate(boys),
+      girlsPassRate: passRate(girls),
+    };
+  })();
+
   const gradeDistribution = (() => {
     const dist: Record<string, number> = { A: 0, B: 0, C: 0, D: 0, E: 0 };
     students.forEach((st) => {
@@ -70,30 +89,98 @@ export function DashboardTab({ students, subjects, subjectStatsList, overallAvg,
         </div>
       </div>
 
-      {/* Top Students + Grade Distribution */}
+      {/* Gender Stats */}
+      {genderStats.boysCount > 0 && genderStats.girlsCount > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+            <div className="flex items-center gap-2 mb-3">
+              <UserCheck className="w-5 h-5 text-blue-600" />
+              <h4 className="font-bold text-blue-900 text-sm">Wavulana ({genderStats.boysCount})</h4>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-blue-600 font-semibold">Wastani</p>
+                <p className="text-xl font-extrabold text-blue-900">{genderStats.boysAvg.toFixed(1)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-blue-600 font-semibold">Kufaulu</p>
+                <p className="text-xl font-extrabold text-blue-900">{genderStats.boysPassRate.toFixed(0)}%</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-pink-50 rounded-2xl p-4 border border-pink-100">
+            <div className="flex items-center gap-2 mb-3">
+              <UserCheck className="w-5 h-5 text-pink-600" />
+              <h4 className="font-bold text-pink-900 text-sm">Wasichana ({genderStats.girlsCount})</h4>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-pink-600 font-semibold">Wastani</p>
+                <p className="text-xl font-extrabold text-pink-900">{genderStats.girlsAvg.toFixed(1)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-pink-600 font-semibold">Kufaulu</p>
+                <p className="text-xl font-extrabold text-pink-900">{genderStats.girlsPassRate.toFixed(0)}%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top 5 + Bottom 5 + Grade Distribution */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Top 5 */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
           <div className="flex items-center gap-2 mb-4">
             <Medal className="w-5 h-5 text-amber-500" />
-            <h3 className="font-bold text-slate-900">Wanafunzi Bora (Top 5)</h3>
+            <h3 className="font-bold text-slate-900 text-sm">Top 5</h3>
           </div>
           <div className="space-y-2">
             {topStudents.map((st, i) => (
-              <div key={st.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white
+              <div key={st.id} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white
                     ${i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-slate-400' : i === 2 ? 'bg-orange-400' : 'bg-slate-200 text-slate-600'}`}>
                     {i + 1}
                   </span>
                   <div>
-                    <p className="font-semibold text-sm text-slate-900">{st.name}</p>
-                    <p className="text-[11px] text-slate-400">{st.gender || '-'}</p>
+                    <p className="font-semibold text-xs text-slate-900 truncate max-w-[120px]">{st.name}</p>
+                    <p className="text-[10px] text-slate-400">{st.gender || '-'}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-sm text-slate-900">{st.average.toFixed(1)}</p>
-                  <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-bold ${getGradeColor(st.grade)}`}>
+                  <p className="font-bold text-xs text-slate-900">{st.average.toFixed(1)}</p>
+                  <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${getGradeColor(st.grade)}`}>
+                    {st.grade}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom 5 */}
+        <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <ArrowDown className="w-5 h-5 text-red-500" />
+            <h3 className="font-bold text-slate-900 text-sm">Bottom 5</h3>
+          </div>
+          <div className="space-y-2">
+            {bottomStudents.map((st, i) => (
+              <div key={st.id} className="flex items-center justify-between p-2.5 rounded-xl bg-red-50/50 hover:bg-red-50 transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold bg-red-100 text-red-700">
+                    {students.length - i}
+                  </span>
+                  <div>
+                    <p className="font-semibold text-xs text-slate-900 truncate max-w-[120px]">{st.name}</p>
+                    <p className="text-[10px] text-slate-400">{st.gender || '-'}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-xs text-slate-900">{st.average.toFixed(1)}</p>
+                  <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${getGradeColor(st.grade)}`}>
                     {st.grade}
                   </span>
                 </div>
@@ -106,7 +193,7 @@ export function DashboardTab({ students, subjects, subjectStatsList, overallAvg,
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-5 h-5 text-indigo-500" />
-            <h3 className="font-bold text-slate-900">Usambazaji wa Daraja</h3>
+            <h3 className="font-bold text-slate-900 text-sm">Usambazaji wa Daraja</h3>
           </div>
           <div className="space-y-3">
             {(['A', 'B', 'C', 'D', 'E'] as const).map((grade) => {
@@ -123,7 +210,7 @@ export function DashboardTab({ students, subjects, subjectStatsList, overallAvg,
                 <div key={grade}>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="font-bold text-slate-700">Daraja {grade}</span>
-                    <span className="text-slate-500">{count} wanafunzi ({pct.toFixed(0)}%)</span>
+                    <span className="text-slate-500">{count} ({pct.toFixed(0)}%)</span>
                   </div>
                   <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
                     <div className={`h-full rounded-full ${colors[grade]} transition-all duration-500`} style={{ width: `${pct}%` }} />

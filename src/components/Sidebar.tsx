@@ -9,6 +9,8 @@ import {
   Settings,
   LogOut,
   Users,
+  Moon,
+  Sun,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -16,6 +18,8 @@ interface SidebarProps {
   onTabChange: (tab: TabType) => void;
   onLogout: () => void;
   studentCount: number;
+  darkMode: boolean;
+  onToggleDark: () => void;
 }
 
 const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
@@ -26,7 +30,7 @@ const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
   { key: 'settings', label: 'Mipangilio', icon: <Settings className="w-5 h-5" /> },
 ];
 
-export function Sidebar({ activeTab, onTabChange, onLogout, studentCount }: SidebarProps) {
+export function Sidebar({ activeTab, onTabChange, onLogout, studentCount, darkMode, onToggleDark }: SidebarProps) {
   return (
     <aside className="w-full md:w-64 bg-slate-900 text-white flex md:flex-col shrink-0 md:min-h-screen">
       {/* Brand */}
@@ -59,6 +63,15 @@ export function Sidebar({ activeTab, onTabChange, onLogout, studentCount }: Side
 
       {/* Footer */}
       <div className="px-3 py-4 border-t border-slate-800 hidden md:block">
+        {/* Dark mode toggle */}
+        <button
+          onClick={onToggleDark}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors mb-2"
+        >
+          {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
+          {darkMode ? 'Mwanga' : 'Giza'}
+        </button>
+
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 mb-3">
           <Users className="w-4 h-4 text-cyan-400" />
           <div>

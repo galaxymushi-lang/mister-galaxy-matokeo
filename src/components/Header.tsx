@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SchoolSettings, TabType, Subject } from '../types';
-import { FileSpreadsheet, FileText, Users, BookOpen, TrendingUp, CheckCircle2, ChevronDown } from 'lucide-react';
+import { FileSpreadsheet, FileText, Users, BookOpen, TrendingUp, CheckCircle2, ChevronDown, Undo2 } from 'lucide-react';
 
 interface HeaderProps {
   settings: SchoolSettings;
@@ -12,6 +12,8 @@ interface HeaderProps {
   subjects: Subject[];
   onOpenReport: (type: 'general' | 'subject', subjectIds?: string[]) => void;
   onExportExcel: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
 }
 
 const tabTitles: Record<TabType, string> = {
@@ -32,6 +34,8 @@ export function Header({
   subjects,
   onOpenReport,
   onExportExcel,
+  onUndo,
+  canUndo,
 }: HeaderProps) {
   const [showSubjectPicker, setShowSubjectPicker] = useState(false);
   const [pickedSubjects, setPickedSubjects] = useState<string[]>([]);
@@ -142,6 +146,19 @@ export function Header({
               </>
             )}
           </div>
+
+          {/* Undo Button */}
+          {activeTab === 'entry' && onUndo && (
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Rudisha hatua ya mwisho"
+            >
+              <Undo2 className="w-4 h-4" />
+              Tendua
+            </button>
+          )}
 
           {/* Excel Export */}
           <button

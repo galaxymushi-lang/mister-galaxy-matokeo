@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { SchoolSettings, Subject, Student, TabType } from './types';
 import { defaultSettings, defaultSubjects, defaultStudents } from './data/seedData';
-import { calculateRankedStudents, calculateSubjectStats, generateExcelWorkbook, downloadFile } from './utils/calculations';
+import { calculateRankedStudents, calculateSubjectStats, generateExcelWorkbook, downloadFile, parseImportedExcel } from './utils/calculations';
 
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -67,6 +67,9 @@ export default function App() {
   // UI Navigation States
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [toastMsg, setToastMsg] = useState<string>('');
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try { return localStorage.getItem('galaxy-dark') === 'true'; } catch { return false; }
+  });
 
   // Report Modal States
   const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
@@ -78,6 +81,12 @@ export default function App() {
     const dataToSave = { settings, subjects, students };
     localStorage.setItem(STORE_KEY, JSON.stringify(dataToSave));
   }, [settings, subjects, students]);
+
+  // Dark mode effect
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('galaxy-dark', String(darkMode));
+  }, [darkMode]);
 
   // Toast Helper
   const showToast = (message: string) => {
@@ -123,9 +132,17 @@ export default function App() {
     setIsLoggedIn(false);
   };
 
+  // Undo state
+  const [undoStack, setUndoStack] = useState<{ studentId: string; subjectId: string; oldVal: number | '' }[]>([]);
+
   const handleUpdateMark = (studentId: string, subjectId: string, val: number | '') => {
-    setStudents((prev) =>
-      prev.map((st) => {
+    setStudents((prev) => {
+      const oldStudent = prev.find((st) => st.id === studentId);
+      const oldVal = oldStudent?.marks[subjectId] ?? '';
+      if (oldVal !== val) {
+        setUndoStack((stack) => [...stack.slice(-19), { studentId, subjectId, oldVal }]);
+      }
+      return prev.map((st) => {
         if (st.id === studentId) {
           return {
             ...st,
@@ -136,8 +153,23 @@ export default function App() {
           };
         }
         return st;
+      });
+    });
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    const last = undoStack[undoStack.length - 1];
+    setUndoStack((s) => s.slice(0, -1));
+    setStudents((prev) =>
+      prev.map((st) => {
+        if (st.id === last.studentId) {
+          return { ...st, marks: { ...st.marks, [last.subjectId]: last.oldVal } };
+        }
+        return st;
       })
     );
+    showToast('Umefuta hatua ya mwisho');
   };
 
   const handleUpdateStudentName = (studentId: string, newName: string) => {
@@ -243,6 +275,31 @@ export default function App() {
     showToast('Data za seed zimerudishwa!');
   };
 
+  const handleImportExcel = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const html = e.target?.result as string;
+        const { students: imported } = parseImportedExcel(html, subjects);
+        if (imported.length === 0) {
+          showToast('Hakuna data iliyopatikana kwenye faili.');
+          return;
+        }
+        const newStudents: Student[] = imported.map((imp, i) => ({
+          id: `imp-${Date.now()}-${i}`,
+          name: imp.name,
+          gender: imp.gender,
+          marks: imp.marks,
+        }));
+        setStudents((prev) => [...prev, ...newStudents]);
+        showToast(`Imeongeza wanafunzi ${newStudents.length} kutoka Excel!`);
+      } catch {
+        showToast('Hitilafu katika kusoma faili la Excel.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleOpenReport = (type: 'general' | 'subject', subjectIds?: string[]) => {
     setReportType(type);
     setSelectedSubjectIds(subjectIds || []);
@@ -267,6 +324,8 @@ export default function App() {
         onTabChange={setActiveTab}
         onLogout={handleLogout}
         studentCount={students.length}
+        darkMode={darkMode}
+        onToggleDark={() => setDarkMode(!darkMode)}
       />
 
       {/* Main Content Workspace */}
@@ -281,6 +340,8 @@ export default function App() {
           subjects={subjects}
           onOpenReport={handleOpenReport}
           onExportExcel={handleExportExcel}
+          onUndo={handleUndo}
+          canUndo={undoStack.length > 0}
         />
 
         <main className="p-4 sm:p-6 flex-1 max-w-7xl w-full mx-auto">
@@ -304,6 +365,7 @@ export default function App() {
               onUpdateStudentGender={handleUpdateStudentGender}
               onAddStudent={handleAddStudent}
               onRemoveStudent={handleRemoveStudent}
+              onImportExcel={handleImportExcel}
             />
           )}
 
