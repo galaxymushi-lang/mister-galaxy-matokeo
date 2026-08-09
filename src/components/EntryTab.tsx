@@ -50,6 +50,49 @@ export function EntryTab({
     return students.filter((st) => st.name.toLowerCase().includes(q));
   }, [students, searchQuery]);
 
+  // Arrow key navigation between mark inputs
+  const handleMarkKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, studentIdx: number, subjectIdx: number) => {
+    const key = e.key;
+    if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Tab'].includes(key)) return;
+
+    e.preventDefault();
+    const studentId = filteredStudents[studentIdx]?.id;
+    const subjectId = subjects[subjectIdx]?.id;
+    if (!studentId || !subjectId) return;
+
+    let nextStudentIdx = studentIdx;
+    let nextSubjectIdx = subjectIdx;
+
+    if (key === 'ArrowRight' || key === 'Tab') {
+      nextSubjectIdx = subjectIdx + 1;
+      if (nextSubjectIdx >= subjects.length) {
+        nextSubjectIdx = 0;
+        nextStudentIdx = studentIdx + 1;
+      }
+    } else if (key === 'ArrowLeft') {
+      nextSubjectIdx = subjectIdx - 1;
+      if (nextSubjectIdx < 0) {
+        nextSubjectIdx = subjects.length - 1;
+        nextStudentIdx = studentIdx - 1;
+      }
+    } else if (key === 'ArrowDown') {
+      nextStudentIdx = studentIdx + 1;
+    } else if (key === 'ArrowUp') {
+      nextStudentIdx = studentIdx - 1;
+    }
+
+    if (nextStudentIdx < 0 || nextStudentIdx >= filteredStudents.length) return;
+    if (nextSubjectIdx < 0 || nextSubjectIdx >= subjects.length) return;
+
+    const nextStudentId = filteredStudents[nextStudentIdx].id;
+    const nextSubjectId = subjects[nextSubjectIdx].id;
+    const nextInput = document.querySelector(`input[data-sid="${nextStudentId}"][data-sub="${nextSubjectId}"]`) as HTMLInputElement;
+    if (nextInput) {
+      nextInput.focus();
+      nextInput.select();
+    }
+  };
+
   const handleMarkChange = (studentId: string, subjectId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === '') {
@@ -156,13 +199,23 @@ export function EntryTab({
               <h3 className="font-bold text-slate-900">Orodha ya Wanafunzi na Matokeo</h3>
             </div>
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Tafuta mwanafunzi..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-48"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tafuta mwanafunzi..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-3 py-1.5 pr-7 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-48"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
               <input
                 type="file"
                 ref={importInputRef}
@@ -300,6 +353,9 @@ export function EntryTab({
                                 max="100"
                                 value={mark !== null ? mark : ''}
                                 onChange={(e) => handleMarkChange(st.id, sub.id, e)}
+                                onKeyDown={(e) => handleMarkKeyDown(e, i, subjects.indexOf(sub))}
+                                data-sid={st.id}
+                                data-sub={sub.id}
                                 className="w-16 mx-auto px-2 py-1.5 text-center text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                               />
                             </td>
