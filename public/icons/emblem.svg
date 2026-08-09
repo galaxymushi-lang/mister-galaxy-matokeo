@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" width="200" height="220">
+  <defs>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#0d1f33"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer Shield Shape -->
+  <path d="M100 10 L170 40 L170 120 Q170 180 100 210 Q30 180 30 120 L30 40 Z" 
+        fill="url(#shield)" stroke="#c9a84c" stroke-width="3"/>
+  
+  <!-- Shield Border -->
+  <path d="M100 18 L163 45 L163 118 Q163 174 100 202 Q37 174 37 118 L37 45 Z" 
+        fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  
+  <!-- Torch Flame -->
+  <ellipse cx="100" cy="55" rx="12" ry="18" fill="#f59e0b" opacity="0.9"/>
+  <ellipse cx="100" cy="52" rx="7" ry="12" fill="#fbbf24"/>
+  <ellipse cx="100" cy="50" rx="4" ry="7" fill="#fef3c7"/>
+  
+  <!-- Torch Handle -->
+  <rect x="96" y="68" width="8" height="30" rx="2" fill="#92400e"/>
+  <rect x="92" y="65" width="16" height="6" rx="2" fill="#b45309"/>
+  
+  <!-- Horizontal Bands (Tanzania Flag Colors) -->
+  <rect x="42" y="105" width="116" height="8" fill="#1d4ed8" opacity="0.8"/>
+  <rect x="42" y="115" width="116" height="3" fill="#fbbf24"/>
+  <rect x="42" y="120" width="116" height="8" fill="#059669" opacity="0.8"/>
+  
+  <!-- Mountains (Kilimanjaro) -->
+  <polygon points="60,140 80,110 100,140" fill="#1e3a5f" stroke="#c9a84c" stroke-width="0.5"/>
+  <polygon points="85,140 105,105 125,140" fill="#1e3a5f" stroke="#c9a84c" stroke-width="0.5"/>
+  <polygon points="110,140 130,115 150,140" fill="#1e3a5f" stroke="#c9a84c" stroke-width="0.5"/>
+  
+  <!-- Snow Caps -->
+  <polygon points="75,118 80,110 85,118" fill="white" opacity="0.7"/>
+  <polygon points="100,113 105,105 110,113" fill="white" opacity="0.7"/>
+  <polygon points="125,121 130,115 135,121" fill="white" opacity="0.7"/>
+  
+  <!-- Spear and Club (Supporters) -->
+  <line x1="25" y1="50" x2="25" y2="160" stroke="#92400e" stroke-width="3"/>
+  <ellipse cx="25" cy="45" rx="6" ry="10" fill="#92400e"/>
+  
+  <line x1="175" y1="50" x2="175" y2="160" stroke="#92400e" stroke-width="3"/>
+  <ellipse cx="175" cy="45" rx="6" ry="10" fill="#92400e"/>
+  
+  <!-- Elephant Tusks -->
+  <path d="M45 80 Q35 100 45 120" fill="none" stroke="white" stroke-width="3" opacity="0.8"/>
+  <path d="M155 80 Q165 100 155 120" fill="none" stroke="white" stroke-width="3" opacity="0.8"/>
+  
+  <!-- Stars -->
+  <polygon points="100,155 102,161 108,161 103,165 105,171 100,167 95,171 97,165 92,161 98,161" fill="#fbbf24"/>
+  
+  <!-- Banner -->
+  <path d="M50 185 Q100 175 150 185 L145 200 Q100 192 55 200 Z" fill="#1e3a5f" stroke="#c9a84c" stroke-width="1"/>
+  <text x="100" y="196" text-anchor="middle" font-family="serif" font-size="8" fill="#c9a84c" font-weight="bold">UHURU NA UMOJA</text>
+  
+  <!-- Bottom Text -->
+  <text x="100" y="218" text-anchor="middle" font-family="sans-serif" font-size="6" fill="#64748b">INCOAT OF ARMS · TANZANIA</text>
+</svg>

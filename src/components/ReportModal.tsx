@@ -59,6 +59,10 @@ export function ReportModal({ isOpen, onClose, type, settings, subjects, student
 
           {/* ─── REPORT HEADER ─── */}
           <header className="text-center mb-6">
+            {/* National Emblem */}
+            <div className="flex justify-center mb-3">
+              <img src="/icons/emblem.svg" alt="National Emblem" className="w-16 h-auto" style={{ printColorAdjust: 'exact' }} />
+            </div>
             <div className="inline-block w-10 h-1 rounded-full bg-slate-900 mb-4" />
             <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase">{settings.schoolName}</h1>
             <p className="text-sm text-slate-500 mt-0.5 font-medium">{settings.examName}</p>

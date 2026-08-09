@@ -346,6 +346,9 @@ export function EntryTab({
                                   .header { border-bottom: 2px solid #1e293b; padding-bottom: 8px; margin-bottom: 12px; }
                                   .grade { font-size: 16px; font-weight: bold; }
                                 </style></head><body>
+                                <div style="text-align:center;margin-bottom:12px;">
+                                  <img src="${window.location.origin}/icons/emblem.svg" alt="Emblem" style="width:60px;height:auto;" />
+                                </div>
                                 <div class="header">
                                   <h1>${settings.schoolName}</h1>
                                   <h2>${settings.examName} - ${settings.className} ${settings.streamName}</h2>
