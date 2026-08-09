@@ -275,6 +275,13 @@ export default function App() {
     showToast('Data za seed zimerudishwa!');
   };
 
+  const handleClearAllMarks = () => {
+    setStudents((prev) =>
+      prev.map((st) => ({ ...st, marks: {} }))
+    );
+    showToast('Marks zote zimefutwa! Wanafunzi wamebaki.');
+  };
+
   const handleImportExcel = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -397,6 +404,7 @@ export default function App() {
               onExportExcel={handleExportExcel}
               onRestoreBackup={handleRestoreBackup}
               onResetData={handleResetData}
+              onClearAllMarks={handleClearAllMarks}
             />
           )}
         </main>

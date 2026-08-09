@@ -15,6 +15,7 @@ import {
   EyeOff,
   FileJson,
   Target,
+  Eraser,
 } from 'lucide-react';
 
 interface SettingsTabProps {
@@ -28,6 +29,7 @@ interface SettingsTabProps {
   onExportExcel: () => void;
   onRestoreBackup: (file: File) => void;
   onResetData: () => void;
+  onClearAllMarks: () => void;
 }
 
 export function SettingsTab({
@@ -41,6 +43,7 @@ export function SettingsTab({
   onExportExcel,
   onRestoreBackup,
   onResetData,
+  onClearAllMarks,
 }: SettingsTabProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [newSubName, setNewSubName] = useState('');
@@ -292,6 +295,17 @@ export function SettingsTab({
             </div>
             <p className="font-semibold text-slate-900">Pakua Excel</p>
             <p className="text-xs text-slate-500">Ripoti ya matokeo (.xls)</p>
+          </button>
+
+          <button
+            onClick={onClearAllMarks}
+            className="p-4 rounded-xl bg-amber-50 hover:bg-amber-100 text-left transition-colors flex flex-col items-start gap-2 border border-amber-100"
+          >
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-white shadow-sm">
+              <Eraser className="w-5 h-5 text-amber-600" />
+            </div>
+            <p className="font-semibold text-amber-700">Futa Marks Zote</p>
+            <p className="text-xs text-amber-600">Wanafunzi wabaki, marks zote zifutwe</p>
           </button>
 
           <button
