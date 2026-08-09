@@ -235,3 +235,79 @@
 .dark input[type="text"],
 .dark select { background-color: #0f172a !important; border-color: #334155 !important; color: #f1f5f9 !important; }
 .dark input:focus, .dark select:focus { border-color: #6366f1 !important; }
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+
+/* Better touch targets for mobile */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  button, a, input[type="number"], input[type="text"], select {
+    min-height: 44px;
+  }
+
+  /* Mark inputs bigger on mobile */
+  input[type="number"][data-sid] {
+    width: 56px !important;
+    padding: 10px 4px !important;
+    font-size: 16px !important;
+  }
+
+  /* Table improvements */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Sticky columns on mobile */
+  td.sticky-left, th.sticky-left {
+    position: sticky !important;
+    left: 0;
+    z-index: 10;
+    background: white;
+  }
+
+  /* Better spacing */
+  .p-4, .p-5, .p-6 {
+    padding: 12px !important;
+  }
+
+  /* Cards stack on mobile */
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Header wraps better */
+  .flex-wrap {
+    flex-wrap: wrap !important;
+  }
+
+  /* Search input full width */
+  input[placeholder*="Tafuta"] {
+    width: 100% !important;
+  }
+
+  /* Sidebar horizontal scroll */
+  nav {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 380px) {
+  input[type="number"][data-sid] {
+    width: 48px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Touch-friendly scrollbar */
+@media (hover: none) and (pointer: coarse) {
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  * { scrollbar-width: none; }
+}

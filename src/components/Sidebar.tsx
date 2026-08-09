@@ -35,12 +35,29 @@ export function Sidebar({ activeTab, onTabChange, onLogout, studentCount, darkMo
     <aside className="w-full md:w-64 bg-slate-900 text-white flex md:flex-col shrink-0 md:min-h-screen">
       {/* Brand */}
       <div className="flex items-center gap-3 px-5 py-4 md:py-6 border-b border-slate-800">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center shrink-0">
           <School className="w-5 h-5 text-white" />
         </div>
-        <div className="hidden md:block">
+        <div>
           <h1 className="font-bold leading-tight text-sm">Mister GALAXY</h1>
           <p className="text-[11px] text-slate-400">Matokeo Portal</p>
+        </div>
+        {/* Mobile: dark mode + logout in brand bar */}
+        <div className="md:hidden flex items-center gap-2 ml-auto">
+          <button
+            onClick={onToggleDark}
+            className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            title={darkMode ? 'Mwanga' : 'Giza'}
+          >
+            {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-400" />}
+          </button>
+          <button
+            onClick={onLogout}
+            className="p-2 rounded-lg hover:bg-slate-800 text-red-400 transition-colors"
+            title="Toka"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
@@ -50,20 +67,20 @@ export function Sidebar({ activeTab, onTabChange, onLogout, studentCount, darkMo
           <button
             key={tab.key}
             onClick={() => onTabChange(tab.key)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0
+            className={`flex items-center gap-2 px-3 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0 min-h-[44px]
               ${activeTab === tab.key
                 ? 'bg-gradient-to-r from-indigo-600 to-cyan-500 text-white shadow-lg'
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
           >
             {tab.icon}
-            {tab.label}
+            <span className="hidden sm:inline">{tab.label}</span>
+            <span className="sm:hidden text-xs">{tab.label.split(' ')[0]}</span>
           </button>
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer - desktop only */}
       <div className="px-3 py-4 border-t border-slate-800 hidden md:block">
-        {/* Dark mode toggle */}
         <button
           onClick={onToggleDark}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors mb-2"
@@ -87,14 +104,6 @@ export function Sidebar({ activeTab, onTabChange, onLogout, studentCount, darkMo
           Toka
         </button>
       </div>
-
-      {/* Mobile logout */}
-      <button
-        onClick={onLogout}
-        className="md:hidden flex items-center gap-2 px-4 text-red-400 shrink-0"
-      >
-        <LogOut className="w-4 h-4" />
-      </button>
     </aside>
   );
 }
